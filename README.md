@@ -1,4 +1,7 @@
+<div>
 <img src="./assets/cydintosh_front.jpg" height="300px">
+<img src="./assets/cydintosh_front_3.jpg" height="300px">
+</div>
 
 # Cydintosh
 
