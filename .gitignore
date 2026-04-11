@@ -1,0 +1,52 @@
+/*
+
+## Allowlist
+!.gitignore
+!.gitmodules
+!README.md
+
+# Source code
+!/src/
+!/include/
+!/lib/
+!/components/
+# Config header template
+!/include/user_config.h.tmpl
+/include/user_config.h
+# Build system
+!/platformio.ini
+!/CMakeLists.txt
+!/sdkconfig.defaults
+!/partitions.csv
+!/.clang-format*
+!/LICENSE
+# External dependencies (submodules)
+!/external/
+
+# Macintosh apps
+!/mac-app/
+
+# Home Assistant automation
+!/homeassistant/
+
+# Others
+!/assets/
+!/tools/
+!/enclosure/
+!/cyd_800k.dsk
+
+## Denylist
+# Build artifacts
+.pio/
+build/
+**/*.o
+**/*.elf
+**/*.map
+dependencies.lock
+sdkconfig.esp*
+
+# ESP-IDF managed components
+managed_components/
+
+# User data
+data/disk.img

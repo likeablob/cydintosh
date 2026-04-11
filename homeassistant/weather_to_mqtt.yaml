@@ -1,0 +1,318 @@
+# Weather to MQTT Automation for Cydintosh Weather Appp
+# Publishes weather data from Home Assistant to MQTT topics every hour
+#
+# CUSTOMIZATION - Set these two variables in the variables: section below:
+#
+# - weather_entity: Your weather entity ID (default: "weather.openweathermap")
+#    - Check Settings > Devices & Services > Entities in Home Assistant
+#
+# - topic_prefix: MQTT topic base path (default: "home/weather")
+#    - Change to match your MQTT topic structure (e.g., "sensors/weather")
+#    - All topics will be prefixed with this value
+#
+# - MQTT broker settings are inherited from your HA MQTT integration
+#    (configured at Settings > Devices & Services > MQTT)
+#
+# - All topics use QoS 1 with retain flag for reliable delivery
+#
+# Topics structure:
+#   {topic_prefix}/current/*    - Current conditions (5 values)
+#   {topic_prefix}/hourly/{n}/* - Hourly forecast slots 0-4 (3 values each)
+#   {topic_prefix}/forecast/{n}/* - Daily forecast slots 0-2 (5 values each)
+#   {topic_prefix}/updated      - Update timestamp (published LAST)
+
+alias: Weather to MQTT for Cydintosh Weather App
+description: "Publish weather data to MQTT topics every hour"
+triggers:
+  # Trigger every hour at minute 0
+  - trigger: time_pattern
+    minutes: "0"
+conditions: []
+# EDIT HERE
+variables:
+  # MQTT topic prefix - change this to customize all topic paths at once
+  topic_prefix: "home/weather"
+  # Weather entity ID - change this to match your weather provider entity
+  weather_entity: "weather.openweathermap"
+  # Location name to display on the weather app
+  location: "Chicago"
+actions:
+  # ============================================
+  # GET HOURLY FORECAST DATA
+  # ============================================
+  - action: weather.get_forecasts
+    target:
+      entity_id: "{{ weather_entity }}"
+    data:
+      type: hourly
+    response_variable: hourly_forecast
+
+  # ============================================
+  # GET DAILY FORECAST DATA (CACHED)
+  # ============================================
+  - action: weather.get_forecasts
+    target:
+      entity_id: "{{ weather_entity }}"
+    data:
+      type: daily
+    response_variable: daily_forecast
+
+  # ============================================
+  # CURRENT WEATHER - 5 TOPICS
+  # ============================================
+  # Location
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/current/location"
+      payload: "{{ location }}"
+      qos: 1
+      retain: true
+
+  # Current temperature
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/current/temp"
+      payload: "{{ states[weather_entity].attributes.temperature | int | default(0) }}"
+      qos: 1
+      retain: true
+
+  # Current condition (sunny, cloudy, rainy, etc.)
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/current/condition"
+      payload: "{{ states[weather_entity].state | default('unknown') }}"
+      qos: 1
+      retain: true
+
+  # Current humidity percentage
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/current/humidity"
+      payload: "{{ states[weather_entity].attributes.humidity | int | default(0) }}"
+      qos: 1
+      retain: true
+
+  # Current wind speed in km/h
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/current/wind_speed"
+      payload: "{{ states[weather_entity].attributes.wind_speed | int | default(0) }}"
+      qos: 1
+      retain: true
+
+  # ============================================
+  # HOURLY FORECAST - 5 SLOTS (every 3 hours)
+  # Each slot has: time, icon, temp
+  # ============================================
+  # Hourly slot 0 (now)
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/0/time"
+      payload: "{{ hourly_forecast[weather_entity].forecast[0].datetime | as_timestamp | timestamp_custom('%H:%M') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/0/icon"
+      payload: "{{ hourly_forecast[weather_entity].forecast[0].condition | default('unknown') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/0/temp"
+      payload: "{{ hourly_forecast[weather_entity].forecast[0].temperature | int | default(0) }}"
+      qos: 1
+      retain: true
+
+  # Hourly slot 1 (+3 hours)
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/1/time"
+      payload: "{{ hourly_forecast[weather_entity].forecast[3].datetime | as_timestamp | timestamp_custom('%H:%M') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/1/icon"
+      payload: "{{ hourly_forecast[weather_entity].forecast[3].condition | default('unknown') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/1/temp"
+      payload: "{{ hourly_forecast[weather_entity].forecast[3].temperature | int | default(0) }}"
+      qos: 1
+      retain: true
+
+  # Hourly slot 2 (+6 hours)
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/2/time"
+      payload: "{{ hourly_forecast[weather_entity].forecast[6].datetime | as_timestamp | timestamp_custom('%H:%M') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/2/icon"
+      payload: "{{ hourly_forecast[weather_entity].forecast[6].condition | default('unknown') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/2/temp"
+      payload: "{{ hourly_forecast[weather_entity].forecast[6].temperature | int | default(0) }}"
+      qos: 1
+      retain: true
+
+  # Hourly slot 3 (+9 hours)
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/3/time"
+      payload: "{{ hourly_forecast[weather_entity].forecast[9].datetime | as_timestamp | timestamp_custom('%H:%M') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/3/icon"
+      payload: "{{ hourly_forecast[weather_entity].forecast[9].condition | default('unknown') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/3/temp"
+      payload: "{{ hourly_forecast[weather_entity].forecast[9].temperature | int | default(0) }}"
+      qos: 1
+      retain: true
+
+  # Hourly slot 4 (+12 hours)
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/4/time"
+      payload: "{{ hourly_forecast[weather_entity].forecast[12].datetime | as_timestamp | timestamp_custom('%H:%M') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/4/icon"
+      payload: "{{ hourly_forecast[weather_entity].forecast[12].condition | default('unknown') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/hourly/4/temp"
+      payload: "{{ hourly_forecast[weather_entity].forecast[12].temperature | int | default(0) }}"
+      qos: 1
+      retain: true
+
+  # ============================================
+  # DAILY FORECAST - 3 SLOTS (0-2)
+  # Each slot has: date, day, icon, hi, lo
+  # ============================================
+  # Daily slot 0 (today)
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/0/date"
+      payload: "{{ daily_forecast[weather_entity].forecast[0].datetime | as_timestamp | timestamp_custom('%-m/%-d') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/0/day"
+      payload: "{{ daily_forecast[weather_entity].forecast[0].datetime | as_timestamp | timestamp_custom('%a') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/0/icon"
+      payload: "{{ daily_forecast[weather_entity].forecast[0].condition | default('unknown') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/0/hi"
+      payload: "{{ daily_forecast[weather_entity].forecast[0].temperature | int | default(0) }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/0/lo"
+      payload: "{{ daily_forecast[weather_entity].forecast[0].templow | int | default(daily_forecast[weather_entity].forecast[0].temperature | int - 10) }}"
+      qos: 1
+      retain: true
+
+  # Daily slot 1 (tomorrow)
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/1/date"
+      payload: "{{ daily_forecast[weather_entity].forecast[1].datetime | as_timestamp | timestamp_custom('%-m/%-d') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/1/day"
+      payload: "{{ daily_forecast[weather_entity].forecast[1].datetime | as_timestamp | timestamp_custom('%a') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/1/icon"
+      payload: "{{ daily_forecast[weather_entity].forecast[1].condition | default('unknown') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/1/hi"
+      payload: "{{ daily_forecast[weather_entity].forecast[1].temperature | int | default(0) }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/1/lo"
+      payload: "{{ daily_forecast[weather_entity].forecast[1].templow | int | default(daily_forecast[weather_entity].forecast[1].temperature | int - 10) }}"
+      qos: 1
+      retain: true
+
+  # Daily slot 2 (day after tomorrow)
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/2/date"
+      payload: "{{ daily_forecast[weather_entity].forecast[2].datetime | as_timestamp | timestamp_custom('%-m/%-d') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/2/day"
+      payload: "{{ daily_forecast[weather_entity].forecast[2].datetime | as_timestamp | timestamp_custom('%a') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/2/icon"
+      payload: "{{ daily_forecast[weather_entity].forecast[2].condition | default('unknown') }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/2/hi"
+      payload: "{{ daily_forecast[weather_entity].forecast[2].temperature | int | default(0) }}"
+      qos: 1
+      retain: true
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/forecast/2/lo"
+      payload: "{{ daily_forecast[weather_entity].forecast[2].templow | int | default(daily_forecast[weather_entity].forecast[2].temperature | int - 10) }}"
+      qos: 1
+      retain: true
+
+  # ============================================
+  # TRIGGER TOPIC - PUBLISHED LAST
+  # Format: "Mar 13 09:43"
+  # ============================================
+  - action: mqtt.publish
+    data:
+      topic: "{{ topic_prefix }}/updated"
+      payload: "{{ as_timestamp(now()) | timestamp_custom('%b %-d %H:%M') }}"
+      qos: 1
+      retain: true
+
+mode: single

@@ -1,0 +1,16 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+// WiFi Configuration
+#define WIFI_SSID       "YOUR_WIFI_SSID"
+#define WIFI_PASSWORD   "YOUR_WIFI_PASSWORD"
+
+// MQTT Configuration
+#define MQTT_BROKER_URL      "mqtt://192.168.1.100:1883"
+#define MQTT_USERNAME        "YOUR_MQTT_USERNAME"
+#define MQTT_PASSWORD        "YOUR_MQTT_PASSWORD"
+#define MQTT_TOPIC_BASE      "home/weather"
+#define MQTT_TOPIC_SUBSCRIBE "home/weather/#"
+#define MQTT_QOS             1
+
+#endif

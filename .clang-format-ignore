@@ -1,0 +1,18 @@
+# Files and directories to ignore during formatting
+# https://clang.llvm.org/docs/ClangFormat.html
+
+# Build artifacts
+build/
+build_*/
+.cmake/
+
+# External dependencies
+external/
+managed_components/
+
+# Generated files
+*.pb.c
+*.pb.h
+
+# Third-party code
+**/third_party/

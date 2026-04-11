@@ -1,0 +1,7 @@
+[submodule "external/umac"]
+	path = external/umac
+	url = https://github.com/likeablob/umac
+	branch = likeablob/feat-esp-support
+[submodule "enclosure/lib/BOSL2"]
+	path = enclosure/lib/BOSL2
+	url = https://github.com/BelfrySCAD/BOSL2

@@ -1,0 +1,2 @@
+# This file ensures the components directory is tracked by git
+# The directory is used by ESP-IDF for additional components
