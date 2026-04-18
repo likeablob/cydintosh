@@ -19,6 +19,8 @@ A Macintosh Plus emulator port for Cheap-Yellow-Display board (ESP32), with some
 | CYD2USB (ESP32-2432S028) | 1        | ESP32 with ILI9341 240x320 LCD, XPT2046 touch |
 | M2x3 Self-Tapping screw  | 4        | For enclosure assembly                        |
 
+> Note: The enclosure is only compatible with the [CYD2USB](https://github.com/witnessmenow/ESP32-Cheap-Yellow-Display/blob/main/cyd.md) (Type-C + micro USB) variant.
+
 ## Getting Started
 
 1. **Flash**: See [Building](#building) to build and flash the firmware/ROM/disk image
@@ -67,10 +69,13 @@ esptool --port /dev/ttyUSB0 --baud 921600 write_flash 0x210000 rom_patched.bin
 cp cyd_800k.dsk data/disk.img
 
 # Build and upload firmware
-pio run -t upload
+# For the CYD (micro USB) variant, use `-e cyd`
+# Add a new [env:xxx] section to platformio.ini for other minor variants.
+pio run -e cyd2usb -t upload
+
 
 # Upload disk image
-pio run -t uploadfs
+pio run -e cyd2usb -t uploadfs
 ```
 
 To use the Weather app, continue with [Home Assistant Setup](#home-assistant-setup).
@@ -171,7 +176,7 @@ WiFi and MQTT broker credentials are configured in [`include/user_config.h`](inc
 ./tools/update-disk.sh data/disk.img
 
 # Re-upload disk image
-pio run -t uploadfs
+pio run -e cyd2usb -t uploadfs
 ```
 
 ## Gallery

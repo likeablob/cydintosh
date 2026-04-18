@@ -55,7 +55,7 @@ void lcd_cyd_init(void) {
     ESP_LOGI(TAG, "Install panel IO");
     esp_lcd_panel_io_spi_config_t io_config =
         ILI9341_PANEL_IO_SPI_CONFIG(TFT_SPI_CS, TFT_DC, NULL, NULL);
-    io_config.pclk_hz = 80 * 1000 * 1000; // 80MHz
+    io_config.pclk_hz = CYD_SPI_CLOCK_HZ;
     ESP_ERROR_CHECK(
         esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)SPI2_HOST, &io_config, &io_handle));
 
@@ -66,7 +66,7 @@ void lcd_cyd_init(void) {
     };
     const esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = TFT_RESET,
-        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,
+        .rgb_ele_order = CYD_RGB_ORDER,
         .bits_per_pixel = 16,
         .vendor_config = &vendor_config,
     };
@@ -74,6 +74,12 @@ void lcd_cyd_init(void) {
 
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+
+#ifdef CYD_MIRROR_DISPLAY
+    ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, false));
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));
+#endif
+
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
     gpio_reset_pin(TFT_BL);
