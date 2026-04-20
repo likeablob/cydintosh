@@ -344,22 +344,7 @@ static void umac_task(void *arg) {
 void app_main(void) {
     ESP_LOGI(TAG, "Cydintosh starting...");
 
-    // Initialize LCD FIRST (before any large allocations)
-    lcd_cyd_init();
-    display_init();
-
-    // Initialize RGB LED
-    led_pwm_init();
-
-    // Boot fade effect: white, 50% brightness, 600ms total
-    led_fade_white(600, 50);
-
-    // Initialize BOOT button (GPIO0) as input with pull-up
-    gpio_reset_pin(BOOT_BUTTON_PIN);
-    gpio_set_direction(BOOT_BUTTON_PIN, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(BOOT_BUTTON_PIN, GPIO_PULLUP_ONLY);
-
-    // Internal RAM - allocate Mac RAM BEFORE WiFi (WiFi consumes RAM)
+    // Allocate Mac RAM first
     umac_ram = (uint8_t *)heap_caps_malloc(RAM_SIZE, MALLOC_CAP_INTERNAL);
     if (umac_ram == NULL) {
         ESP_LOGE(TAG, "Failed to allocate %d bytes from internal RAM!", RAM_SIZE);
@@ -376,6 +361,21 @@ void app_main(void) {
     }
     ESP_LOGI(TAG, "Allocated %d bytes framebuffer at %p (internal DMA)", FB_SIZE, umac_fb);
     memset(umac_fb, 0, FB_SIZE);
+
+    // Initialize LCD
+    lcd_cyd_init();
+    display_init();
+
+    // Initialize RGB LED
+    led_pwm_init();
+
+    // Boot fade effect: white, 50% brightness, 600ms total
+    led_fade_white(600, 50);
+
+    // Initialize BOOT button (GPIO0) as input with pull-up
+    gpio_reset_pin(BOOT_BUTTON_PIN);
+    gpio_set_direction(BOOT_BUTTON_PIN, GPIO_MODE_INPUT);
+    gpio_set_pull_mode(BOOT_BUTTON_PIN, GPIO_PULLUP_ONLY);
 
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
