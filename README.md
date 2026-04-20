@@ -88,6 +88,9 @@ mise run format
 
 # Check formatting without changes
 mise run format:check
+
+# Watch serial logs
+pio device monitor
 ```
 
 ## Mac Applications
