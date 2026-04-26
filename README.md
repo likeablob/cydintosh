@@ -30,7 +30,7 @@ A Macintosh Plus emulator port for Cheap-Yellow-Display board (ESP32), with some
 ## Prerequisites for Emulator
 
 - Mac Plus ROM v3 (4D1F8172, 128KB) `rom.bin`
-- System 3.2 bootable disk image (400KB)
+- System 3.x bootable disk image (either 400KB or 800KB variants)
 - HFS disk image (800KB `cyd_800k.dsk` provided, includes pre-built Mac apps for Cydintosh)
 
 See also the [pico-mac](https://github.com/evansm7/pico-mac) repo for ROM and disk image requirements.
@@ -68,14 +68,20 @@ esptool --port /dev/ttyUSB0 --baud 921600 write_flash 0x210000 rom_patched.bin
 # Finally, copy the prepared disk to data/disk.img
 cp cyd_800k.dsk data/disk.img
 
-# Build and upload firmware
+# Upload disk image (make sure that `data` directory contains only `disk.img`)
+pio run -e cyd2usb -t uploadfs
+
+# Finally build and upload the `cydintosh` firmware
 # For the CYD (micro USB) variant, use `-e cyd`
 # Add a new [env:xxx] section to platformio.ini for other minor variants.
 pio run -e cyd2usb -t upload
+```
 
 
-# Upload disk image
-pio run -e cyd2usb -t uploadfs
+## Troubleshooting
+
+```sh
+pio device monitor -b 115200 -p /path/to/cyd-usbdevice
 ```
 
 To use the Weather app, continue with [Home Assistant Setup](#home-assistant-setup).
