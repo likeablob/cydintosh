@@ -56,8 +56,9 @@ cp include/user_config.h.tmpl include/user_config.h
 # Edit include/user_config.h with your WiFi/MQTT settings
 
 # Generate and flash patched ROM
+# NOTE: Specify the correct serial port depending on your setup/OS
 python3 tools/generate_patched_rom.py path/to/rom.bin -o rom_patched.bin
-esptool --port /dev/ttyUSB0 --baud 921600 write_flash 0x210000 rom_patched.bin
+esptool --port /dev/ttyUSB0 write_flash 0x210000 rom_patched.bin
 
 # Prepare disk image
 # The cyd_800k.dsk includes pre-built Mac applications (CydCtl, Weather, WiFi).
