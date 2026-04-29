@@ -55,6 +55,15 @@ static void process_command(void) {
         }
         break;
 
+    case CMD_GET_UNITS:
+        strncpy((char *)resp.data, WEATHER_TEMP_UNIT, 7);
+        resp.data[7] = '\0';
+        strncpy((char *)resp.data + 8, WEATHER_WIND_UNIT, 7);
+        resp.data[15] = '\0';
+        resp.len = 16;
+        resp.status = 0;
+        break;
+
     case CMD_GET_HW_STATE:
         if (req.len >= 1) {
             uint8_t last_seq = req.data[0];

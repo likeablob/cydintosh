@@ -2,6 +2,7 @@
 #define MQTT_DISCOVERY_H
 
 #include "user_config.h"
+
 #include <stdint.h>
 
 #define HA_BACKLIGHT_TOPIC_STATE  MQTT_TOPIC_BASE_DEVICE "/backlight/state"

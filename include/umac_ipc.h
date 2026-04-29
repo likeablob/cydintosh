@@ -18,6 +18,7 @@
 #define CMD_GET_WIFI_STATUS 0x11
 
 #define CMD_GET_WEATHER_DATA 0x20
+#define CMD_GET_UNITS        0x21
 
 #define CMD_GET_HW_STATE  0x30
 #define CMD_SET_BACKLIGHT 0x31

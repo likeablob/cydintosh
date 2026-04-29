@@ -17,4 +17,13 @@
 #define HA_DISCOVERY_PREFIX  "homeassistant"
 #define HA_DEVICE_ID         "cydintosh"
 
+// Weather display units (Mac Roman encoding, use hex escapes for special chars)
+// ° = \xA1, use string concatenation: "\xA1" "C" means "°C"
+// Examples: "\xA1" "C" = °C, "\xA1" "F" = °F, "K" = Kelvin
+// NOTE: These are display labels; values are not converted.
+#define WEATHER_TEMP_UNIT \
+    "\xA1"                \
+    "C"
+#define WEATHER_WIND_UNIT "km/h"
+
 #endif

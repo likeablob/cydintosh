@@ -73,6 +73,10 @@ static WeatherData weather = {
     "Mar 13 09:43"
 };
 
+static char temp_unit[8] = "\xA1"
+                           "C";
+static char wind_unit[8] = "km/h";
+
 static uint8_t last_seq = 0;
 static long last_poll_ticks = 0;
 #define POLL_INTERVAL_TICKS (30 * 60)
@@ -95,6 +99,23 @@ int fetch_weather_data(void) {
     }
 
     return 0;
+}
+
+void fetch_units(void) {
+    uint8_t cmd_data[1] = {0};
+    uint8_t resp_data[256];
+    uint8_t len;
+    uint8_t status;
+
+    ipc_send_command(CMD_GET_UNITS, 0, cmd_data);
+    status = ipc_get_response(&len, resp_data, 255);
+
+    if (status == 0 && len >= 16) {
+        memcpy(temp_unit, resp_data, 8);
+        temp_unit[7] = '\0';
+        memcpy(wind_unit, resp_data + 8, 8);
+        wind_unit[7] = '\0';
+    }
 }
 
 void init_toolbox(void) {
@@ -121,13 +142,13 @@ void draw_header(void) {
 }
 
 void draw_current_weather(void) {
-    char buf[16];
+    char buf[20];
     unsigned char *icon;
 
     icon = get_icon_large_by_condition(weather.condition);
     draw_icon_large(icon, 31, 38);
 
-    sprintf(buf, "%d%cC", weather.temp_current, (char)0xA1);
+    sprintf(buf, "%d%s", weather.temp_current, temp_unit);
     ctopstr(buf);
     TextSize(20);
     TextFace(bold);
@@ -163,14 +184,14 @@ void draw_current_weather(void) {
     MoveTo(116, 77);
     DrawString((StringPtr)buf);
 
-    sprintf(buf, "Wind: %dkm/h", weather.wind_speed);
+    sprintf(buf, "Wind: %d%s", weather.wind_speed, wind_unit);
     ctopstr(buf);
     MoveTo(116, 92);
     DrawString((StringPtr)buf);
 }
 
 void draw_hourly(void) {
-    char buf[8];
+    char buf[16];
     int i;
     int x = 12;
 
@@ -184,7 +205,7 @@ void draw_hourly(void) {
 
         draw_icon(get_icon_by_condition(weather.hourly[i].icon), x + 4, 122);
 
-        sprintf(buf, "%d%cC", weather.hourly[i].temp, (char)0xA1);
+        sprintf(buf, "%d%s", weather.hourly[i].temp, temp_unit);
         ctopstr(buf);
         MoveTo(x + 4, 149);
         DrawString((StringPtr)buf);
@@ -377,6 +398,7 @@ void setup_menus(void) {
 void main(void) {
     init_toolbox();
     setup_menus();
+    fetch_units();
 
     mainWindow =
         NewWindow(NULL, &windowRect, "\pWeather", true, documentProc, (WindowPtr)-1, true, 0);
