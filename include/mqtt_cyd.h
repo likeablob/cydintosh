@@ -1,5 +1,5 @@
-#ifndef MQTT_WEATHER_H
-#define MQTT_WEATHER_H
+#ifndef MQTT_CYD_H
+#define MQTT_CYD_H
 
 #include "user_config.h"
 
@@ -38,8 +38,8 @@ typedef struct {
     char updated[16];
 } WeatherData;
 
-void mqtt_weather_init(void);
-void mqtt_weather_start(void);
+void mqtt_client_init(void);
+void mqtt_client_start(void);
 WeatherData *mqtt_weather_get_data(void);
 uint8_t mqtt_weather_get_seq(void);
 

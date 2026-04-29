@@ -17,7 +17,7 @@ set(MUSASHI_SOURCES
 )
 
 idf_component_register(
-    SRCS "main.c" "video.c" "display.c" "disc_lfs.c" "touch_cyd.c" "umac_ipc.c" "wifi_info.c" "mqtt_weather.c" "hw_control.c" ${UMAC_SOURCES} ${MUSASHI_SOURCES}
+    SRCS "main.c" "video.c" "display.c" "disc_lfs.c" "touch_cyd.c" "umac_ipc.c" "wifi_info.c" "mqtt_cyd.c" "hw_control.c" ${UMAC_SOURCES} ${MUSASHI_SOURCES}
     INCLUDE_DIRS "." "${CMAKE_SOURCE_DIR}/include" "${UMAC_DIR}/include" "${MUSASHI_DIR}"
     REQUIRES driver esp_timer esp_lcd joltwallet__littlefs lcd_cyd esp_wifi esp_netif mqtt
 )

@@ -11,7 +11,7 @@
 #include "hw.h"
 #include "hw_control.h"
 #include "lcd_cyd.h"
-#include "mqtt_weather.h"
+#include "mqtt_cyd.h"
 #include "nvs_flash.h"
 #include "rom.h"
 #include "touch_cyd.h"
@@ -35,8 +35,8 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
                                void *event_data) {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
         ESP_LOGI(TAG, "WiFi connected, starting MQTT weather client");
-        mqtt_weather_init();
-        mqtt_weather_start();
+        mqtt_client_init();
+        mqtt_client_start();
     }
 }
 

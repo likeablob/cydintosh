@@ -1,11 +1,16 @@
-#include "mqtt_weather.h"
+#include "mqtt_cyd.h"
 
+#include "esp_event.h"
 #include "esp_log.h"
+#include "hw_control.h"
 #include "mqtt_client.h"
-#include "stdlib.h"
-#include "string.h"
+#include "mqtt_discovery.h"
 
-static const char *TAG = "mqtt_weather";
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+static const char *TAG = "mqtt_cyd";
 
 static esp_mqtt_client_handle_t mqtt_client = NULL;
 static WeatherData weather_data;
@@ -101,14 +106,32 @@ static void handle_forecast_topic(const char *topic, const char *data, int len) 
     }
 }
 
+static void handle_backlight_command(const char *data, int len) {
+    int value = atoi(data);
+    if (value < HA_BACKLIGHT_MIN)
+        value = HA_BACKLIGHT_MIN;
+    if (value > HA_BACKLIGHT_MAX)
+        value = HA_BACKLIGHT_MAX;
+
+    ESP_LOGI(TAG, "Backlight command: %d", value);
+    hw_set_backlight((uint8_t)value);
+}
+
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id,
                                void *event_data) {
     esp_mqtt_event_handle_t event = event_data;
 
     switch (event_id) {
     case MQTT_EVENT_CONNECTED:
-        ESP_LOGI(TAG, "MQTT connected, subscribing to %s", MQTT_TOPIC_SUBSCRIBE);
+        ESP_LOGI(TAG, "MQTT connected");
+
+        mqtt_discovery_publish();
+        mqtt_discovery_subscribe_commands();
+
+        ESP_LOGI(TAG, "Subscribing to %s", MQTT_TOPIC_SUBSCRIBE);
         esp_mqtt_client_subscribe(mqtt_client, MQTT_TOPIC_SUBSCRIBE, MQTT_QOS);
+
+        mqtt_discovery_publish_backlight_state(hw_get_state()->backlight);
         break;
 
     case MQTT_EVENT_DATA:
@@ -125,7 +148,9 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         memcpy(data, event->data, data_len);
         data[data_len] = '\0';
 
-        if (strstr(topic, "/current/")) {
+        if (strstr(topic, HA_BACKLIGHT_TOPIC_SET)) {
+            handle_backlight_command(data, data_len);
+        } else if (strstr(topic, "/current/")) {
             handle_current_topic(topic, data, data_len);
         } else if (strstr(topic, "/hourly/")) {
             handle_hourly_topic(topic, data, data_len);
@@ -148,7 +173,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     }
 }
 
-void mqtt_weather_init(void) {
+void mqtt_client_init(void) {
     memset(&weather_data, 0, sizeof(WeatherData));
 
     esp_mqtt_client_config_t mqtt_cfg = {
@@ -161,7 +186,7 @@ void mqtt_weather_init(void) {
     esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
 }
 
-void mqtt_weather_start(void) {
+void mqtt_client_start(void) {
     if (mqtt_client) {
         esp_mqtt_client_start(mqtt_client);
         ESP_LOGI(TAG, "MQTT client started");
@@ -174,4 +199,41 @@ WeatherData *mqtt_weather_get_data(void) {
 
 uint8_t mqtt_weather_get_seq(void) {
     return weather_data.seq;
+}
+
+// IDEA: Use other library to keep up with the HA standard
+void mqtt_discovery_publish(void) {
+    const char *discovery_payload = "{"
+                                    "\"name\":\"Display Brightness\","
+                                    "\"state_topic\":\"" HA_BACKLIGHT_TOPIC_STATE "\","
+                                    "\"command_topic\":\"" HA_BACKLIGHT_TOPIC_SET "\","
+                                    "\"min\":1,"
+                                    "\"max\":100,"
+                                    "\"step\":1,"
+                                    "\"unit_of_measurement\":\"%\","
+                                    "\"unique_id\":\"" HA_BACKLIGHT_UNIQUE_ID "\","
+                                    "\"device\":{"
+                                    "\"identifiers\":[\"" HA_DEVICE_ID "\"],"
+                                    "\"manufacturer\":\"likeablob\","
+                                    "\"model\":\"cydintosh\","
+                                    "\"name\":\"cydintosh\""
+                                    "}"
+                                    "}";
+
+    ESP_LOGI(TAG, "Publishing discovery: %s", HA_BACKLIGHT_CONFIG_TOPIC);
+    esp_mqtt_client_publish(mqtt_client, HA_BACKLIGHT_CONFIG_TOPIC, discovery_payload, 0, MQTT_QOS,
+                            true);
+}
+
+void mqtt_discovery_subscribe_commands(void) {
+    ESP_LOGI(TAG, "Subscribing to command topic: %s", HA_BACKLIGHT_TOPIC_SET);
+    esp_mqtt_client_subscribe(mqtt_client, HA_BACKLIGHT_TOPIC_SET, MQTT_QOS);
+}
+
+void mqtt_discovery_publish_backlight_state(uint8_t value) {
+    char state_buf[4];
+    snprintf(state_buf, sizeof(state_buf), "%d", value);
+
+    ESP_LOGI(TAG, "Publishing backlight state: %s", state_buf);
+    esp_mqtt_client_publish(mqtt_client, HA_BACKLIGHT_TOPIC_STATE, state_buf, 0, MQTT_QOS, true);
 }

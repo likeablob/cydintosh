@@ -160,7 +160,8 @@ You need to set up MQTT and a weather integration in Home Assistant to use the W
 
 #### ESP32 Configuration
 
-WiFi and MQTT broker credentials are configured in [`include/user_config.h`](include/user_config.h.tmpl):
+- WiFi and MQTT broker credentials are configured in [`include/user_config.h`](include/user_config.h.tmpl).
+- The device expose entities (e.g. display brightness) via [HA MQTT Discovery](https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery).
 
 ```c
 ...
@@ -170,6 +171,9 @@ WiFi and MQTT broker credentials are configured in [`include/user_config.h`](inc
 #define MQTT_BROKER_URL "mqtt://192.168.1.100:1883"
 #define MQTT_USERNAME   "YOUR_MQTT_USERNAME"
 #define MQTT_PASSWORD   "YOUR_MQTT_PASSWORD"
+...
+
+#define HA_DISCOVERY_PREFIX  "homeassistant"
 ```
 
 ### Updating the Disk Image Manually
