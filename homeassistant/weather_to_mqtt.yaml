@@ -65,7 +65,7 @@ actions:
     data:
       topic: "{{ topic_prefix }}/current/location"
       payload: "{{ location }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # Current temperature
@@ -73,7 +73,7 @@ actions:
     data:
       topic: "{{ topic_prefix }}/current/temp"
       payload: "{{ states[weather_entity].attributes.temperature | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # Current condition (sunny, cloudy, rainy, etc.)
@@ -81,7 +81,7 @@ actions:
     data:
       topic: "{{ topic_prefix }}/current/condition"
       payload: "{{ states[weather_entity].state | default('unknown') }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # Current humidity percentage
@@ -89,7 +89,7 @@ actions:
     data:
       topic: "{{ topic_prefix }}/current/humidity"
       payload: "{{ states[weather_entity].attributes.humidity | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # Current wind speed in km/h
@@ -97,7 +97,7 @@ actions:
     data:
       topic: "{{ topic_prefix }}/current/wind_speed"
       payload: "{{ states[weather_entity].attributes.wind_speed | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # ============================================
@@ -109,19 +109,19 @@ actions:
     data:
       topic: "{{ topic_prefix }}/hourly/0/time"
       payload: "{{ hourly_forecast[weather_entity].forecast[0].datetime | as_timestamp | timestamp_custom('%H:%M') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/hourly/0/icon"
       payload: "{{ hourly_forecast[weather_entity].forecast[0].condition | default('unknown') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/hourly/0/temp"
       payload: "{{ hourly_forecast[weather_entity].forecast[0].temperature | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # Hourly slot 1 (+3 hours)
@@ -129,19 +129,19 @@ actions:
     data:
       topic: "{{ topic_prefix }}/hourly/1/time"
       payload: "{{ hourly_forecast[weather_entity].forecast[3].datetime | as_timestamp | timestamp_custom('%H:%M') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/hourly/1/icon"
       payload: "{{ hourly_forecast[weather_entity].forecast[3].condition | default('unknown') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/hourly/1/temp"
       payload: "{{ hourly_forecast[weather_entity].forecast[3].temperature | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # Hourly slot 2 (+6 hours)
@@ -149,19 +149,19 @@ actions:
     data:
       topic: "{{ topic_prefix }}/hourly/2/time"
       payload: "{{ hourly_forecast[weather_entity].forecast[6].datetime | as_timestamp | timestamp_custom('%H:%M') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/hourly/2/icon"
       payload: "{{ hourly_forecast[weather_entity].forecast[6].condition | default('unknown') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/hourly/2/temp"
       payload: "{{ hourly_forecast[weather_entity].forecast[6].temperature | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # Hourly slot 3 (+9 hours)
@@ -169,19 +169,19 @@ actions:
     data:
       topic: "{{ topic_prefix }}/hourly/3/time"
       payload: "{{ hourly_forecast[weather_entity].forecast[9].datetime | as_timestamp | timestamp_custom('%H:%M') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/hourly/3/icon"
       payload: "{{ hourly_forecast[weather_entity].forecast[9].condition | default('unknown') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/hourly/3/temp"
       payload: "{{ hourly_forecast[weather_entity].forecast[9].temperature | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # Hourly slot 4 (+12 hours)
@@ -189,19 +189,19 @@ actions:
     data:
       topic: "{{ topic_prefix }}/hourly/4/time"
       payload: "{{ hourly_forecast[weather_entity].forecast[12].datetime | as_timestamp | timestamp_custom('%H:%M') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/hourly/4/icon"
       payload: "{{ hourly_forecast[weather_entity].forecast[12].condition | default('unknown') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/hourly/4/temp"
       payload: "{{ hourly_forecast[weather_entity].forecast[12].temperature | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # ============================================
@@ -213,31 +213,31 @@ actions:
     data:
       topic: "{{ topic_prefix }}/forecast/0/date"
       payload: "{{ daily_forecast[weather_entity].forecast[0].datetime | as_timestamp | timestamp_custom('%-m/%-d') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/0/day"
       payload: "{{ daily_forecast[weather_entity].forecast[0].datetime | as_timestamp | timestamp_custom('%a') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/0/icon"
       payload: "{{ daily_forecast[weather_entity].forecast[0].condition | default('unknown') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/0/hi"
       payload: "{{ daily_forecast[weather_entity].forecast[0].temperature | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/0/lo"
       payload: "{{ daily_forecast[weather_entity].forecast[0].templow | int | default(daily_forecast[weather_entity].forecast[0].temperature | int - 10) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # Daily slot 1 (tomorrow)
@@ -245,31 +245,31 @@ actions:
     data:
       topic: "{{ topic_prefix }}/forecast/1/date"
       payload: "{{ daily_forecast[weather_entity].forecast[1].datetime | as_timestamp | timestamp_custom('%-m/%-d') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/1/day"
       payload: "{{ daily_forecast[weather_entity].forecast[1].datetime | as_timestamp | timestamp_custom('%a') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/1/icon"
       payload: "{{ daily_forecast[weather_entity].forecast[1].condition | default('unknown') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/1/hi"
       payload: "{{ daily_forecast[weather_entity].forecast[1].temperature | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/1/lo"
       payload: "{{ daily_forecast[weather_entity].forecast[1].templow | int | default(daily_forecast[weather_entity].forecast[1].temperature | int - 10) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # Daily slot 2 (day after tomorrow)
@@ -277,31 +277,31 @@ actions:
     data:
       topic: "{{ topic_prefix }}/forecast/2/date"
       payload: "{{ daily_forecast[weather_entity].forecast[2].datetime | as_timestamp | timestamp_custom('%-m/%-d') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/2/day"
       payload: "{{ daily_forecast[weather_entity].forecast[2].datetime | as_timestamp | timestamp_custom('%a') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/2/icon"
       payload: "{{ daily_forecast[weather_entity].forecast[2].condition | default('unknown') }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/2/hi"
       payload: "{{ daily_forecast[weather_entity].forecast[2].temperature | int | default(0) }}"
-      qos: 1
+      qos: "1"
       retain: true
   - action: mqtt.publish
     data:
       topic: "{{ topic_prefix }}/forecast/2/lo"
       payload: "{{ daily_forecast[weather_entity].forecast[2].templow | int | default(daily_forecast[weather_entity].forecast[2].temperature | int - 10) }}"
-      qos: 1
+      qos: "1"
       retain: true
 
   # ============================================
@@ -312,7 +312,7 @@ actions:
     data:
       topic: "{{ topic_prefix }}/updated"
       payload: "{{ as_timestamp(now()) | timestamp_custom('%b %-d %H:%M') }}"
-      qos: 1
+      qos: "1"
       retain: true
 
 mode: single

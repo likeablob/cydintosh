@@ -1,0 +1,67 @@
+# Brightness Schedule Automation for Cydintosh
+# Automatically adjusts display brightness based on time of day
+#
+# CUSTOMIZATION - Edit the variables: section below:
+#
+# - backlight_topic: MQTT command topic for backlight control
+#    - Default: "home/cyd-mac/backlight/set"
+#    - Must match MQTT_TOPIC_BASE_DEVICE in your user_config.h
+#    - Format: {MQTT_TOPIC_BASE_DEVICE}/backlight/set
+#
+# - nighttime_brightness: Brightness level at night (1-100)
+# - morning_brightness: Brightness level in the morning (1-100)
+#
+# - MQTT broker settings are inherited from your HA MQTT integration
+#    (configured at Settings > Devices & Services > MQTT)
+#
+# Topics used:
+#   {backlight_topic} - Command topic to set brightness (payload: 1-100)
+
+alias: Brightness Schedule for Cydintosh
+description: "Adjust display brightness automatically at 22:00 (night) and 07:00 (morning)"
+triggers:
+  # Night mode: Lower brightness at 22:00
+  - trigger: time
+    at: "22:00"
+    id: nighttime
+
+  # Morning mode: Raise brightness at 07:00
+  - trigger: time
+    at: "07:00"
+    id: morning
+
+conditions: []
+
+# EDIT HERE
+variables:
+  # MQTT command topic - change to match your device configuration
+  backlight_topic: "home/cyd-mac/backlight/set"
+  # Brightness values (1-100)
+  nighttime_brightness: 10
+  morning_brightness: 80
+
+actions:
+  - choose:
+      # Nighttime: Set brightness to 10%
+      - conditions:
+          - condition: trigger
+            id: nighttime
+        sequence:
+          - action: mqtt.publish
+            data:
+              topic: "{{ backlight_topic }}"
+              payload: "{{ nighttime_brightness }}"
+              qos: "1"
+
+      # Morning: Set brightness to 80%
+      - conditions:
+          - condition: trigger
+            id: morning
+        sequence:
+          - action: mqtt.publish
+            data:
+              topic: "{{ backlight_topic }}"
+              payload: "{{ morning_brightness }}"
+              qos: "1"
+
+mode: single

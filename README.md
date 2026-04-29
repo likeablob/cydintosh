@@ -158,6 +158,8 @@ You need to set up MQTT and a weather integration in Home Assistant to use the W
      location: "Chicago"
    ```
 
+Optionally, add the [`homeassistant/brightness_schedule.yaml`](homeassistant/brightness_schedule.yaml) automation for time-based display dimming.
+
 #### ESP32 Configuration
 
 - WiFi, MQTT broker credentials, and weather display units etc. are configured in [`include/user_config.h`](include/user_config.h.tmpl).
